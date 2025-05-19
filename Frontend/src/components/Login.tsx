@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
+import axios from 'axios';  // import axios for HTTP requests
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -8,8 +9,15 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
       alert('Login Successful!');
+
+      // Step 6: Send user email to backend
+      if (user.email) {
+        await axios.post('http://localhost:5000/api/user/save-user', { email: user.email });
+        console.log('Email saved to backend');
+      }
     } catch (error: any) {
       alert(error.message);
     }
